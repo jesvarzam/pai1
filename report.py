@@ -35,9 +35,7 @@ def populate_html(period):
             actual_date= datetime.now().strftime("%d-%b-%Y (%H:%M:%S)")
             actual_date_obj = datetime.strptime(actual_date, "%d-%b-%Y (%H:%M:%S)")
             diff=actual_date_obj - date_time_obj
-            print(diff)
             if (diff.seconds<=period):
-                print("heyy")
                 changes.append(change)
 
         name=str(datetime.today().strftime("%d-%b-%Y"))+".html"
