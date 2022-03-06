@@ -43,7 +43,7 @@ def check_digest(file, dicc):
 def write_log(check_data):
     try:
         with open('changes.log', 'r+') as f:
-            line_found = any(check_data[1] in line for line in f)
+            line_found = any(check_data[1] + ', ' + check_data[2] + '\n' in line for line in f)
             if not line_found:
                 f.seek(0, os.SEEK_END)
                 f.write(check_data[0] + ', ' + check_data[1] + ', ' + check_data[2] + '\n')
