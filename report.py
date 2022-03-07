@@ -1,5 +1,4 @@
 from datetime import datetime
-import datetime
 import threading
 
 PATH_REPORTS="./reports/"
@@ -35,13 +34,14 @@ def populate_html():
         actual_date= datetime.now().strftime("%d-%b-%Y (%H:%M:%S)")
         actual_date_obj = datetime.strptime(actual_date, "%d-%b-%Y (%H:%M:%S)")
         diff=actual_date_obj - date_time_obj
-        if (diff.seconds<=60):
+        if (diff.seconds<=PERIOD):
             changes.append(change)
-
-    name=str(datetime.today().strftime("%d-%b-%Y"))+".html"
-    file = open(PATH_REPORTS + name, "w")
-    file.write(create_table_html(["Timestamp","File Name","Last Hash Calculated"], name[:-4], changes))
-    file.close()
+            
+    if len(changes)>0:
+        name=str(datetime.today().strftime("%d-%b-%Y-%H-%M-%S"))+".html"
+        file = open(PATH_REPORTS + name, "w")
+        file.write(create_table_html(["Timestamp","File Name","Last Hash Calculated"], name[:-4], changes))
+        file.close()
 
 
 populate_html()
