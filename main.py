@@ -16,5 +16,6 @@ def timer():
             write_log(check_data)
 
 
+remove_log_content()
 timer()
 populate_html()

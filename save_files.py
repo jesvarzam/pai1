@@ -39,6 +39,9 @@ def check_digest(file, dicc):
         return [timestamp, name+extension, actual_hexdigest]
     return []
 
+def remove_log_content():
+    with open("changes.log", "w") as f:
+        f.truncate()
 
 def write_log(check_data):
     try:
