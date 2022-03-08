@@ -30,7 +30,12 @@ for file in FILES:
         hash = digest(file)
         filename= file
         mac=challenge(hash,token)
-
+        with open('../communication.txt', 'w') as f:
+          f.write("-- CLIENT -- \n")
+          f.write("FILENAME: "+filename+'\n')
+          f.write("HASH: "+hash+'\n')
+          f.write("MAC: "+mac+'\n')
+        f.close()
 
 
 #pares del token
