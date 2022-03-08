@@ -32,10 +32,9 @@ for file in FILES:
         mac=challenge(hash,token)
         with open('../communication.txt', 'w') as f:
           f.write("-- CLIENT -- \n")
-          f.write("TOKEN: "+ token+'\n')
-          f.write("FILENAME: "+filename+'\n')
+          f.write("FILE: "+filename+'\n')
           f.write("HASH: "+hash+'\n')
-          f.write("MAC: "+mac+'\n')
+          f.write("TOKEN: "+ token+'\n')
         f.close()
         mac_server=""
         hash_server=""
