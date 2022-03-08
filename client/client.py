@@ -30,6 +30,8 @@ for file in FILES:
         hash = digest(file)
         filename= file
         mac=challenge(hash,token)
+        print("MAC ------------>"+mac)
+        print("HASH ------------>"+hash)
         with open('../communication.txt', 'w') as f:
           f.write("-- CLIENT -- \n")
           f.write("FILE: "+filename+'\n')
@@ -38,25 +40,25 @@ for file in FILES:
         f.close()
         mac_server=""
         hash_server=""
+        error=""
         while True:
           with open('../communication.txt', 'r') as f:
             for linea in f:
               if "-- SERVER --" in linea:
                 for linea in f:
                   try:
-                    if linea.startswith("HASHS:"):
+                    if linea.startswith("VERIFICATION FAILED"):
+                      error=linea
+                    if linea.startswith("HASH_FROM_SERVER:"):
                       hash_server=linea.split(": ")[1]
-                      print(hash_server)
-                    if linea.startswith("MACS:"):
+                    if linea.startswith("MAC:"):
                       mac_server=linea.split(": ")[1]
-                      print(mac_server)
                   except:
                     print("Something went wrong ...")
-          if(mac_server!=""):
+          if(hash_server!=""):
             break
           f.close()
-        if(mac_server==mac):
+        if(mac_server==mac and error==""):
           print(Style.RESET_ALL + filename + " →" , Fore.GREEN + "INTEGRITY OK")
         else:
           print(Style.RESET_ALL + filename+" →" , Fore.RED + "INTEGRITY FAIL")
-                
