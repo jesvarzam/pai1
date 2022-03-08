@@ -64,8 +64,8 @@ def write_txt_ok(data):
 
 
 def write_txt_failed_mod(data):
-    file_name = get_name(data[0])
-    file_extension = get_extension(data[0])
+    file_name = get_name(data['FILE'])
+    file_extension = get_extension(data['FILE'])
     file_hash_from_server = SERVER_DICC[file_extension][file_name]
     with open('../communication.txt', 'a') as f:
         f.write("-- SERVER -- \n")
@@ -85,4 +85,3 @@ if __name__=='__main__':
     data = read_client_data()
     check = check_client_data(data)
     send_info(check, data)
-
