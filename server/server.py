@@ -4,20 +4,31 @@ FILES = os.listdir('./files')
 
 SERVER_DICC = saveFiles()
 
+def rotar_izquierda(cadena, posiciones):
+  return cadena[posiciones:] + cadena[:posiciones]
+
+
+def challenge(hash,token):
+        mac = hex(int(hash, 16) + int(token, 16))[2:]
+        mac_rot13= rotar_izquierda(mac, 13)
+        mac_par=mac_rot13[1::2]
+        mac_sim=''.join(reversed(mac_par))
+        return mac_sim
+
 def read_client_data():
-    data = []
+    data = {}
     with open('../communication.txt', 'r') as f:
         for line in f.readlines():
             if line.startswith("-- CLIENT --"):
                 continue
-            data.append(line.split(":")[1].strip())
+            data[line.split(":")[0].strip()] = line.split(":")[1].strip()
     return data
 
 
 def check_client_data(data):
-    file_name = get_name(data[0])
-    file_extension = get_extension(data[0])
-    file_hash_from_client = data[1]
+    file_name = get_name(data['FILE'])
+    file_extension = get_extension(data['FILE'])
+    file_hash_from_client = data['HASH']
 
     if not SERVER_DICC[file_extension]:
         return "File extension not found"
@@ -39,15 +50,16 @@ def send_info(check, data):
 
 
 def write_txt_ok(data):
-    file_name = get_name(data[0])
-    file_extension = get_extension(data[0])
+    token_from_client = data['TOKEN']
+    file_name = get_name(data['FILE'])
+    file_extension = get_extension(data['FILE'])
     file_hash_from_server = SERVER_DICC[file_extension][file_name]
 
     with open('../communication.txt', 'a') as f:
         f.write("-- SERVER -- \n")
         f.write("VERIFICATION SUCCESSFUL\n")
         f.write("HASH_FROM_SERVER: "+file_hash_from_server+'\n')
-        f.write("MAC: "+ "MAC_TEST" +'\n')
+        f.write("MAC_FROM_SERVER: "+ challenge(file_hash_from_server, token_from_client) +'\n')
         f.close()
 
 
