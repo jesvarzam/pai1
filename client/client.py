@@ -1,9 +1,9 @@
 import uuid
 import os
 import hashlib
-
+from colorama import Fore, init, Style
+init()
 token=str(uuid.uuid4()).replace("-","")+str(uuid.uuid4()).replace("-","")
-print(token)
 FILES = os.listdir('./files')
 
 def digest(path):
@@ -32,11 +32,32 @@ for file in FILES:
         mac=challenge(hash,token)
         with open('../communication.txt', 'w') as f:
           f.write("-- CLIENT -- \n")
+          f.write("TOKEN: "+ token+'\n')
           f.write("FILENAME: "+filename+'\n')
           f.write("HASH: "+hash+'\n')
           f.write("MAC: "+mac+'\n')
         f.close()
-
-
-#pares del token
-#impares del hash
+        mac_server=""
+        hash_server=""
+        while True:
+          with open('../communication.txt', 'r') as f:
+            for linea in f:
+              if "-- SERVER --" in linea:
+                for linea in f:
+                  try:
+                    if linea.startswith("HASHS:"):
+                      hash_server=linea.split(": ")[1]
+                      print(hash_server)
+                    if linea.startswith("MACS:"):
+                      mac_server=linea.split(": ")[1]
+                      print(mac_server)
+                  except:
+                    print("Something went wrong ...")
+          if(mac_server!=""):
+            break
+          f.close()
+        if(mac_server==mac):
+          print(Style.RESET_ALL + filename + " →" , Fore.GREEN + "INTEGRITY OK")
+        else:
+          print(Style.RESET_ALL + filename+" →" , Fore.RED + "INTEGRITY FAIL")
+                
