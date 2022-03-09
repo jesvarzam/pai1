@@ -6,6 +6,7 @@ from datetime import datetime
 FILES = os.listdir('./files')
 global DICC_HASH
 DICC_HASH = dict()
+alg_cript = input("Algoritmo criptográfico a usar (SHA-256 (default), SHA-512, SHA3-256, SHA3-512): ")
 
 def get_name(file):
     return os.path.splitext(file)[0]
@@ -21,9 +22,9 @@ def saveFiles():
         extension = get_extension(file)
         name = get_name(file)
         if not DICC_HASH.get(extension):
-            DICC_HASH[extension] = {name: digest(file_path)}
+            DICC_HASH[extension] = {name: digest(file_path,alg_cript)}
         else:
-            DICC_HASH[extension][name] = digest(file_path)
+            DICC_HASH[extension][name] = digest(file_path,alg_cript)
     return DICC_HASH
 
 
@@ -31,7 +32,7 @@ def check_digest(file, dicc):
     file_path = './files/' + file
     extension = get_extension(file)
     name = get_name(file)
-    actual_hexdigest = digest(file_path)
+    actual_hexdigest = digest(file_path,alg_cript)
     original_hexdigest = dicc[extension][name]
     if actual_hexdigest != original_hexdigest:
         dateTimeObj = datetime.now()
@@ -54,14 +55,18 @@ def write_log(check_data):
         with open('changes.log', 'a') as f:
             f.write(check_data[0] + ', ' + check_data[1] + ', ' + check_data[2] + '\n')
 
-def digest(path):
-    BLOCK_SIZE = 65536 
+def digest(path,alg):
+    BLOCK_SIZE = 65536
     file_hash = hashlib.sha256()
+    if alg=="SHA-512":
+        file_hash = hashlib.sha512()
+    elif alg=="SHA3-256":
+        file_hash = hashlib.sha3_256()
+    elif alg=="SHA3-512":
+        file_hash = hashlib.sha3_512()
     with open(path, 'rb') as f: 
         fb = f.read(BLOCK_SIZE) 
         while len(fb) > 0: 
             file_hash.update(fb) 
             fb = f.read(BLOCK_SIZE)
     return file_hash.hexdigest()
-
-#TODO ORDENAR CLAVES DEL DICCIONARIO PARA POSTERIORMENTE REALIZAR EL DIVIDE Y VENCERAS
