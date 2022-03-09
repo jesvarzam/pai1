@@ -1,4 +1,5 @@
 import os
+import time
 from save_files import saveFiles, get_name, get_extension
 FILES = os.listdir('./files')
 
@@ -19,7 +20,7 @@ def read_client_data():
     data = {}
     with open('../communication.txt', 'r') as f:
         for line in f.readlines():
-            if line.startswith("-- CLIENT --"):
+            if 'CLIENT' in line:
                 continue
             data[line.split(":")[0].strip()] = line.split(":")[1].strip()
     return data
@@ -80,8 +81,15 @@ def write_txt_failed_not_exist(check):
         f.write("VERIFICATION FAILED, FILE DOES NOT EXIST\n")
         f.close()
 
-if __name__=='__main__':
-    
-    data = read_client_data()
-    check = check_client_data(data)
-    send_info(check, data)
+
+def main():
+    if 'CLIENT' in open('../communication.txt', 'r').read():
+        data = read_client_data()
+        check = check_client_data(data)
+        send_info(check, data)
+        time.sleep(5)
+    else:
+        print("Waiting for connection...", end="\r")
+
+while True:
+    main()
