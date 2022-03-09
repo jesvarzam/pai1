@@ -1,8 +1,8 @@
 import os
 import time
 from save_files import saveFiles, get_name, get_extension
-FILES = os.listdir('./files')
 
+FILES = os.listdir('./files')
 SERVER_DICC = saveFiles()
 
 def rotar_izquierda(cadena, posiciones):
@@ -22,7 +22,10 @@ def read_client_data():
         for line in f.readlines():
             if 'CLIENT' in line:
                 continue
-            data[line.split(":")[0].strip()] = line.split(":")[1].strip()
+            try:
+                data[line.split(":")[0].strip()] = line.split(":")[1].strip()
+            except:
+                return False
     return data
 
 
@@ -85,9 +88,13 @@ def write_txt_failed_not_exist(check):
 def main():
     if 'CLIENT' in open('../communication.txt', 'r').read():
         data = read_client_data()
+        if not data:
+            print("Waiting for connection...", end="\r")
+            return False
+        print("Connection established with client at {}".format(time.localtime()))
         check = check_client_data(data)
         send_info(check, data)
-        time.sleep(5)
+        time.sleep(1)
     else:
         print("Waiting for connection...", end="\r")
 
