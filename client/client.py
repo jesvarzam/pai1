@@ -3,12 +3,25 @@ import os
 import hashlib
 from colorama import Fore, init, Style
 init()
-token=str(uuid.uuid4()).replace("-","")+str(uuid.uuid4()).replace("-","")
-FILES = os.listdir('./files')
 
-def digest(path):
+FILES = os.listdir('./files')
+alg_cript = input("Algoritmo criptográfico a usar (SHA-256 (default), SHA-512, SHA3-256, SHA3-512): ")
+
+def token():
+  token=str(uuid.uuid4()).replace("-","")+str(uuid.uuid4()).replace("-","")
+  if(alg_cript=="SHA-512" or alg_cript=="SHA3-512"):
+    token=str(uuid.uuid4()).replace("-","")+str(uuid.uuid4()).replace("-","")+str(uuid.uuid4()).replace("-","")+str(uuid.uuid4()).replace("-","")
+  return token
+
+def digest(path,alg):
     BLOCK_SIZE = 65536 
     file_hash = hashlib.sha256()
+    if alg=="SHA-512":
+        file_hash = hashlib.sha512()
+    elif alg=="SHA3-256":
+        file_hash = hashlib.sha3_256()
+    elif alg=="SHA3-512":
+        file_hash = hashlib.sha3_512()
     with open("files/"+path, 'rb') as f: 
         fb = f.read(BLOCK_SIZE) 
         while len(fb) > 0: 
@@ -27,15 +40,16 @@ def challenge(hash,token):
         return mac_sim
 
 for file in FILES:
-        hash = digest(file)
+        hash = digest(file,alg_cript)
         filename= file
-        mac=challenge(hash,token)
+        tokenization=token()
+        mac=challenge(hash,tokenization)
 
         with open('../communication.txt', 'w') as f:
           f.write("-- CLIENT -- \n")
           f.write("FILE: "+filename+'\n')
           f.write("HASH: "+hash+'\n')
-          f.write("TOKEN: "+ token+'\n')
+          f.write("TOKEN: "+ tokenization+'\n')
         f.close()
         mac_server=""
         hash_server=""
