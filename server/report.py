@@ -3,7 +3,6 @@ import threading
 import os
 
 current_path = os.path.dirname(os.path.abspath(__file__))
-PATH_REPORTS = os.listdir(current_path+"/reports/")
 PERIOD = 20
 
 def create_table_html(headers,report, data):
@@ -41,9 +40,6 @@ def populate_html():
             
     if len(changes)>0:
         name=str(datetime.today().strftime("%d-%b-%Y-%H-%M-%S"))+".html"
-        file = open(PATH_REPORTS + name, "w")
+        file = open(current_path + "/reports/" + name, "w")
         file.write(create_table_html(["Timestamp","File Name","Last Hash Calculated"], name[:-4], changes))
         file.close()
-
-
-populate_html()
