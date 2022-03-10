@@ -4,7 +4,8 @@ import hashlib
 from colorama import Fore, init, Style
 init()
 
-FILES = os.listdir('./files')
+CURRENT_PATH = os.path.dirname(os.path.abspath(__file__))
+FILES = os.listdir(CURRENT_PATH+"/files")
 alg_cript = input("Algoritmo criptográfico a usar (SHA-256 (default), SHA-512, SHA3-256, SHA3-512): ")
 
 def token():
@@ -22,7 +23,7 @@ def digest(path,alg):
         file_hash = hashlib.sha3_256()
     elif alg=="SHA3-512":
         file_hash = hashlib.sha3_512()
-    with open("files/"+path, 'rb') as f: 
+    with open(CURRENT_PATH+"/files/"+path, 'rb') as f: 
         fb = f.read(BLOCK_SIZE) 
         while len(fb) > 0: 
             file_hash.update(fb) 
@@ -45,7 +46,7 @@ for file in FILES:
         tokenization=token()
         mac=challenge(hash,tokenization)
 
-        with open('../communication.txt', 'w') as f:
+        with open(CURRENT_PATH + '/../communication.txt', 'w') as f:
           f.write("-- CLIENT -- \n")
           f.write("FILE: "+filename+'\n')
           f.write("HASH: "+hash+'\n')
@@ -55,7 +56,7 @@ for file in FILES:
         hash_server=""
         error=""
         while True:
-          with open('../communication.txt', 'r') as f:
+          with open(CURRENT_PATH + '/../communication.txt', 'r') as f:
             for linea in f:
               if "-- SERVER --" in linea:
                 for linea in f:

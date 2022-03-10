@@ -1,9 +1,19 @@
 import os
 import time
 from save_files import saveFiles, get_name, get_extension
+import sys
+import signal
 
-FILES = os.listdir('./files')
+CURRENT_PATH = os.path.dirname(os.path.abspath(__file__))
+communication_path = CURRENT_PATH + '/../communication.txt'
+FILES = os.listdir(CURRENT_PATH+"/files")
 SERVER_DICC = saveFiles()
+
+def sig_handler(sig, frame):
+	print("\n\n[!] Exiting...\n")
+	sys.exit(0)
+
+signal.signal(signal.SIGINT, sig_handler)
 
 def rotar_izquierda(cadena, posiciones):
   return cadena[posiciones:] + cadena[:posiciones]
@@ -18,7 +28,7 @@ def challenge(hash,token):
 
 def read_client_data():
     data = {}
-    with open('../communication.txt', 'r') as f:
+    with open(communication_path, 'r') as f:
         for line in f.readlines():
             if 'CLIENT' in line:
                 continue
@@ -59,7 +69,7 @@ def write_txt_ok(data):
     file_extension = get_extension(data['FILE'])
     file_hash_from_server = SERVER_DICC[file_extension][file_name]
 
-    with open('../communication.txt', 'a') as f:
+    with open(communication_path, 'a') as f:
         f.write("-- SERVER -- \n")
         f.write("VERIFICATION SUCCESSFUL\n")
         f.write("HASH_FROM_SERVER: "+file_hash_from_server+'\n')
@@ -71,7 +81,7 @@ def write_txt_failed_mod(data):
     file_name = get_name(data['FILE'])
     file_extension = get_extension(data['FILE'])
     file_hash_from_server = SERVER_DICC[file_extension][file_name]
-    with open('../communication.txt', 'a') as f:
+    with open(communication_path, 'a') as f:
         f.write("-- SERVER -- \n")
         f.write("VERIFICATION FAILED, FILE HAS BEEN MODIFIED\n")
         f.write("HASH_FROM_SERVER: "+file_hash_from_server+'\n')
@@ -79,14 +89,14 @@ def write_txt_failed_mod(data):
 
 
 def write_txt_failed_not_exist(check):
-    with open('../communication.txt', 'a') as f:
+    with open(communication_path, 'a') as f:
         f.write("-- SERVER -- \n")
         f.write("VERIFICATION FAILED, FILE DOES NOT EXIST\n")
         f.close()
 
 
 def main():
-    if 'CLIENT' in open('../communication.txt', 'r').read():
+    if 'CLIENT' in open(communication_path, 'r').read():
         data = read_client_data()
         if not data:
             print("Waiting for connection...", end="\r")
