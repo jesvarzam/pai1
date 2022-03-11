@@ -3,11 +3,29 @@ import time
 from save_files import saveFiles, get_name, get_extension
 import sys
 import signal
+import threading
 
 CURRENT_PATH = os.path.dirname(os.path.abspath(__file__))
 communication_path = CURRENT_PATH + '/../communication.txt'
 FILES = os.listdir(CURRENT_PATH+"/files")
 SERVER_DICC = saveFiles()
+tokens=[]
+
+def timer():
+    while True:
+        time.sleep(5)
+        try:
+            tokens.remove(tokens[0])
+        except:
+            pass
+
+def token_utils(token):
+    res=False
+    if token not in tokens:
+        tokens.append(token)
+        print(tokens)
+        res=True
+    return res
 
 def sig_handler(sig, frame):
 	print("\n\n[!] Exiting...\n")
@@ -65,17 +83,19 @@ def send_info(check, data):
 
 def write_txt_ok(data):
     token_from_client = data['TOKEN']
-    file_name = get_name(data['FILE'])
-    file_extension = get_extension(data['FILE'])
-    file_hash_from_server = SERVER_DICC[file_extension][file_name]
+    if token_utils(token_from_client):
+        file_name = get_name(data['FILE'])
+        file_extension = get_extension(data['FILE'])
+        file_hash_from_server = SERVER_DICC[file_extension][file_name]
 
-    with open(communication_path, 'a') as f:
-        f.write("-- SERVER -- \n")
-        f.write("VERIFICATION SUCCESSFUL\n")
-        f.write("HASH_FROM_SERVER: "+file_hash_from_server+'\n')
-        f.write("MAC_FROM_SERVER: "+ challenge(file_hash_from_server, token_from_client) +'\n')
-        f.close()
-
+        with open(communication_path, 'a') as f:
+            f.write("-- SERVER -- \n")
+            f.write("VERIFICATION SUCCESSFUL\n")
+            f.write("HASH_FROM_SERVER: "+file_hash_from_server+'\n')
+            f.write("MAC_FROM_SERVER: "+ challenge(file_hash_from_server, token_from_client) +'\n')
+            f.close()
+    else:
+        write_txt_failed_replay()
 
 def write_txt_failed_mod(data):
     file_name = get_name(data['FILE'])
@@ -88,10 +108,16 @@ def write_txt_failed_mod(data):
         f.close()
 
 
-def write_txt_failed_not_exist(check):
+def write_txt_failed_not_exist():
     with open(communication_path, 'a') as f:
         f.write("-- SERVER -- \n")
         f.write("VERIFICATION FAILED, FILE DOES NOT EXIST\n")
+        f.close()
+
+def write_txt_failed_replay():
+    with open('../communication.txt', 'a') as f:
+        f.write("-- SERVER -- \n")
+        f.write("VERIFICATION FAILED, TOKEN ALREADY EXIST\n")
         f.close()
 
 
@@ -104,9 +130,10 @@ def main():
         print("Connection established with client at {}".format(time.localtime()))
         check = check_client_data(data)
         send_info(check, data)
-        time.sleep(1)
     else:
         print("Waiting for connection...", end="\r")
 
 while True:
+    t = threading.Thread(target=timer)
+    t.start()
     main()
