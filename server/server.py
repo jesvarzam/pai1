@@ -4,6 +4,7 @@ from save_files import saveFiles, get_name, get_extension
 import sys
 import signal
 import threading
+from datetime import datetime
 
 CURRENT_PATH = os.path.dirname(os.path.abspath(__file__))
 communication_path = CURRENT_PATH + '/../communication.txt'
@@ -23,7 +24,6 @@ def token_utils(token):
     res=False
     if token not in tokens:
         tokens.append(token)
-        print(tokens)
         res=True
     return res
 
@@ -122,18 +122,18 @@ def write_txt_failed_replay():
 
 
 def main():
-    if 'CLIENT' in open(communication_path, 'r').read():
+    if 'CLIENT' and 'TOKEN' in open(communication_path, 'r').read():
         data = read_client_data()
         if not data:
             print("Waiting for connection...", end="\r")
             return False
-        print("Connection established with client at {}".format(time.localtime()))
+        print("Connection established with client at {}".format(datetime.now().strftime("%d-%b-%Y (%H:%M:%S)")))
         check = check_client_data(data)
         send_info(check, data)
     else:
         print("Waiting for connection...", end="\r")
 
+t = threading.Thread(target=timer)
+t.start()
 while True:
-    t = threading.Thread(target=timer)
-    t.start()
     main()
